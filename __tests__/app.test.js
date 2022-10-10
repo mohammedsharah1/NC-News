@@ -3,16 +3,12 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 
-const {
-  articleData,
-  commentData,
-  topicData,
-  userData,
-} = require("../db/data/test-data/index");
+testData= require("../db/data/test-data/index");
 
 beforeEach(() => {
-  return seed({ articleData, commentData, topicData, userData });
-});
+    return seed(testData);
+  });
+  
 
 afterAll(() => {
   if (db.end) db.end();
@@ -26,6 +22,7 @@ describe("Backend testing", () => {
         .expect(200)
         .then(({ body: { topics } }) => {
           expect(topics).toBeInstanceOf(Array);
+          expect(topics).toHaveLength(3);
           topics.forEach((topic) => {
             expect(topic).toEqual(
               expect.objectContaining({
