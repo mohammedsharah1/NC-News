@@ -41,5 +41,46 @@ describe("Backend testing", () => {
           expect(body.msg).toBe("not found");
         });
     });
-  });
-});
+  })
+  describe('GET api/articles/:article_id', () => {
+    test('status 200: returns article by id', () => {
+        const id =1;
+    return request(app)
+      .get(`/api/articles/${id}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual({ 
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 100,
+         
+        });
+
+      });
+        
+    });
+    test('status: 400, unkown id', () => {
+        const id = "hello"
+        return request(app)
+        .get(`/api/articles/${id}`)
+        .expect(400)
+        .then(({body}) =>{
+            expect(body.msg).toBe("invalid id")
+        })
+        
+    });
+    test('status:404, correct data type but id does not exist ', () => {
+        const id = 287;
+        return request(app)
+        .get(`/api/articles/${id}`)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe("id not found")
+        })
+    });
+})
+})
