@@ -78,6 +78,7 @@ describe("Backend testing", () => {
         });
     });
   });
+<<<<<<< HEAD
   describe.only("GET /api/users", () => {
     test("status:200, responds with an array of user data", () => {
       return request(app)
@@ -98,4 +99,6 @@ describe("Backend testing", () => {
         });
     });
   });
+=======
+>>>>>>> main
 });
