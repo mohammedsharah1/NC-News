@@ -59,13 +59,13 @@ describe("Backend testing", () => {
           });
         });
     });
-    test("status: 400, unkown id", () => {
+    test("status: 400, invalid id", () => {
       const id = "hello";
       return request(app)
         .get(`/api/articles/${id}`)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe("invalid id");
+          expect(body.msg).toBe("invalid id/vote");
         });
     });
     test("status:404, correct data type but id does not exist ", () => {
@@ -78,7 +78,6 @@ describe("Backend testing", () => {
         });
     });
   });
-<<<<<<< HEAD
   describe.only("GET /api/users", () => {
     test("status:200, responds with an array of user data", () => {
       return request(app)
@@ -99,6 +98,49 @@ describe("Backend testing", () => {
         });
     });
   });
-=======
->>>>>>> main
+  describe.only("PATCH /api/articles/:article_id", () => {
+    test("status: 200, responds with the updated article", () => {
+      const id = 1;
+      const voteIncrement = { votes: -4 };
+      return request(app)
+        .patch(`/api/articles/${id}`)
+        .send(voteIncrement)
+        .expect(200)
+        .then(({body}) => {
+          // console.log(body)
+          expect(body.article).toEqual({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 96,
+          });
+          expect(body.article.votes).toBe(96);
+        });
+    });
+    test("status: 400, bad request invalid data", () => {
+      const id = 1;
+      const voteIncrement = { votes: "nothing to see here" };
+      return request(app)
+        .patch(`/api/articles/${id}`)
+        .send(voteIncrement)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("invalid id/vote");
+        });
+    });
+    test("status: 400, bad request when passed an empty object increment ", () => {
+      const id = 1;
+      const voteIncrement = {};
+      return request(app)
+        .patch(`/api/articles/${id}`)
+        .send(voteIncrement)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("vote increment has not been provided");
+        });
+    });
+  });
 });
