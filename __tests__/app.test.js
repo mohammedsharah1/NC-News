@@ -99,14 +99,14 @@ describe("Backend testing", () => {
     });
   });
   describe.only("PATCH /api/articles/:article_id", () => {
-    test("status: 200, responds with the updated article", () => {
+    test("status: 200, responds with the updated article when votes decremented", () => {
       const id = 1;
       const voteIncrement = { votes: -4 };
       return request(app)
         .patch(`/api/articles/${id}`)
         .send(voteIncrement)
         .expect(200)
-        .then(({body}) => {
+        .then(({ body }) => {
           // console.log(body)
           expect(body.article).toEqual({
             article_id: 1,
@@ -120,9 +120,41 @@ describe("Backend testing", () => {
           expect(body.article.votes).toBe(96);
         });
     });
-    test("status: 400, bad request invalid data", () => {
+    test("status: 200, responds with the updated article when votes incremented", () => {
+      const id = 1;
+      const voteIncrement = { votes: 4 };
+      return request(app)
+        .patch(`/api/articles/${id}`)
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          // console.log(body)
+          expect(body.article).toEqual({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 104,
+          });
+          expect(body.article.votes).toBe(104);
+        });
+    });
+    test("status: 400, bad request invalid vote increment value", () => {
       const id = 1;
       const voteIncrement = { votes: "nothing to see here" };
+      return request(app)
+        .patch(`/api/articles/${id}`)
+        .send(voteIncrement)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("invalid id/vote");
+        });
+    });
+    test("status: 400, bad request invalid id", () => {
+      const id = "apples";
+      const voteIncrement = { votes: 1 };
       return request(app)
         .patch(`/api/articles/${id}`)
         .send(voteIncrement)
