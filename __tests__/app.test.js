@@ -56,6 +56,7 @@ describe("Backend testing", () => {
             body: "I find this existence challenging",
             created_at: "2020-07-09T20:11:00.000Z",
             votes: 100,
+            comment_count: 11,
           });
         });
     });
@@ -78,7 +79,7 @@ describe("Backend testing", () => {
         });
     });
   });
-  describe.only("GET /api/users", () => {
+  describe("GET /api/users", () => {
     test("status:200, responds with an array of user data", () => {
       return request(app)
         .get("/api/users")
