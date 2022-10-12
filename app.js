@@ -14,23 +14,21 @@ const {
   handleInternalErrors,
   handlePSQLErrors,
 } = require("./controllers/errors.controller");
-
+const { updateVotes } = require("./controllers/update-votes.controller");
 
 app.get("/api/topics", getTopics);
 
 app.get("/api/articles/:article_id", getArticlesById);
 
-
 app.get("/api/users", getUsers);
+
+app.patch("/api/articles/:article_id", updateVotes);
 app.use("/", handle404);
 
-
 app.use(handleCustomErrors);
-
 
 app.use(handlePSQLErrors);
 
 app.use(handleInternalErrors);
-
 
 module.exports = app;
