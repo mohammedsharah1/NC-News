@@ -7,6 +7,7 @@ const {
 } = require("./controllers/get-articles-by-id.controller");
 
 const { getUsers } = require("./controllers/get-users.controller");
+const { getArticles } = require("./controllers/get-articles.controller");
 
 const {
   handle404,
@@ -21,6 +22,7 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticlesById);
 
 app.get("/api/users", getUsers);
+app.get("/api/articles", getArticles);
 
 app.patch("/api/articles/:article_id", updateVotes);
 app.use("/", handle404);

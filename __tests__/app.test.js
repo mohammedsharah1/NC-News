@@ -99,7 +99,7 @@ describe("Backend testing", () => {
         });
     });
   });
-  describe.only("PATCH /api/articles/:article_id", () => {
+  describe("PATCH /api/articles/:article_id", () => {
     test("status: 200, responds with the updated article when votes decremented", () => {
       const id = 1;
       const voteIncrement = { votes: -4 };
@@ -176,4 +176,74 @@ describe("Backend testing", () => {
         });
     });
   });
+  describe("GET /api/articles", () => {
+    test("status: 200, responds with an array of all articles", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeInstanceOf(Array);
+          expect(articles).toHaveLength(12);
+
+          articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                body: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(Number),
+              })
+            );
+          });
+        });
+    });
+  });
+  test("status: 200, responds with the correct topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toEqual([
+          {
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            article_id: 5,
+            topic: "cats",
+            author: "rogersop",
+            body: "Bastet walks amongst us, and the cats are taking arms!",
+            created_at: "2020-08-03T13:14:00.000Z",
+            votes: 0,
+            comment_count: 2,
+          },
+        ]);
+      });
+  });
+  test("status: 400, responds with invalid topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=spud")
+      .expect(400)
+      .then((response) => {
+        const {
+          body: { msg },
+        } = response;
+        expect(msg).toBe("invalid topic");
+      });
+  });
+  test.only("status: 200, accepts order by created_at", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((response) => {
+        const {
+          body: { articles },
+        } = response;
+
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
 });
+
+
