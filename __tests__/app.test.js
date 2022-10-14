@@ -295,4 +295,98 @@ describe("Backend testing", () => {
         expect(response.comments).toEqual(undefined);
       });
   });
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("status :201, new comment posted", () => {
+      const id = 2;
+      const newComment = {
+        author: "rogersop",
+        body: "some information",
+      };
+      return request(app)
+        .post(`/api/articles/${id}/comments`)
+        .expect(201)
+        .send(newComment)
+        .then(({ body }) => {
+
+          
+          expect(body.comments).toEqual({
+            comment_id: 19,
+            author: "rogersop",
+            body: "some information",
+            article_id: 2,
+            votes: 0,
+            created_at: expect.any(String),
+          });
+          expect(body.comments).toEqual(
+            expect.objectContaining({
+              author: "rogersop",
+              body: "some information",
+            })
+          );
+        });
+    });
+    test("status:404, foreign key not found", () => {
+      const id = 2;
+      return request(app)
+        .post(`/api/articles/${id}/comments`)
+        .send({ author: "random author", body: "some stuff" })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("foreign key/id not found");
+        });
+    });
+    test("status:404, id does not exist ", () => {
+      const id = 287;
+      return request(app)
+        .post(`/api/articles/${id}/comments`)
+        .send({ author: "rogersop", body: "some information" })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("foreign key/id not found");
+        });
+    });
+  });
+  test("status: 400, invalid id, wrong data type", () => {
+    const id = "any id";
+    return request(app)
+      .post(`/api/articles/${id}/comments`)
+      .send({ author: "rogersop", body: "some information" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("invalid id/vote");
+      });
+  });
+  test("status: 400, bad request not correctly formatted", () => {
+    const id = 2;
+    return request(app)
+      .post(`/api/articles/${id}/comments`)
+      .send({ body: "some information" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request properties missing");
+      });
+  });
+  test("status :201, ignores extra properties", () => {
+    const id = 2;
+    newComment = {
+      author: "rogersop",
+      body: "some information",
+      random: "some extra information",
+    };
+    return request(app)
+      .post(`/api/articles/${id}/comments`)
+      .expect(201)
+      .send(newComment)
+      .then(({ body }) => {
+        expect(body.comments).toEqual({
+          comment_id: 19,
+          author: "rogersop",
+          body: "some information",
+          article_id: 2,
+          votes: 0,
+          created_at: expect.any(String),
+        });
+      });
+  });
 });
+
