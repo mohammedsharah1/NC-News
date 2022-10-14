@@ -415,7 +415,7 @@ describe("Backend testing", () => {
         });
     });
   });
-  describe.only('test api', () => {
+  describe('test api', () => {
     test('returns apis', () => {
        return request(app)
        .get("/api")
