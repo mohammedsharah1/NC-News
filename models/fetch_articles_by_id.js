@@ -3,8 +3,11 @@ const db = require("../db/connection");
 exports.fetchArticlesById = (id) => {
   return db
     .query(
-      `SELECT * FROM articles WHERE article_id=$1
-    COUNT (comments.article_id) ::INT AS comment_count;`,
+      `SELECT articles.*, COUNT (comments.article_id) ::INT AS comment_count
+      FROM articles LEFT JOIN comments
+      ON comments.article_id = articles.article_id
+      WHERE articles.article_id=$1
+      GROUP BY articles.article_id;`,
       [id]
     )
     .then(({ rows }) => {
