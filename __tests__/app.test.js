@@ -75,7 +75,7 @@ describe("Backend testing", () => {
         .get(`/api/articles/${id}`)
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("id not found");
+          expect(body.msg).toBe("id does not exist");
         });
     });
   });
@@ -108,7 +108,6 @@ describe("Backend testing", () => {
         .send(voteIncrement)
         .expect(200)
         .then(({ body }) => {
-          // console.log(body)
           expect(body.article).toEqual({
             article_id: 1,
             title: "Living in the shadow of a great man",
@@ -129,7 +128,6 @@ describe("Backend testing", () => {
         .send(voteIncrement)
         .expect(200)
         .then(({ body }) => {
-          // console.log(body)
           expect(body.article).toEqual({
             article_id: 1,
             title: "Living in the shadow of a great man",
@@ -232,7 +230,7 @@ describe("Backend testing", () => {
         expect(msg).toBe("invalid topic");
       });
   });
-  test.only("status: 200, accepts order by created_at", () => {
+  test("status: 200, accepts order by created_at", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .expect(200)
@@ -244,6 +242,57 @@ describe("Backend testing", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+  describe("GET /api/articles/:article_id/comments", () => {
+    test("status: 200, responds with an array of comments for the given article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toBeInstanceOf(Array);
+          expect(comments).toHaveLength(11);
+
+          comments.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                body: expect.any(String),
+                comment_id: expect.any(Number),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
+          });
+        });
+    });
+    test("status: 404, id does not exist", () => {
+      const id = 999;
+      return request(app)
+        .get(`/api/articles/${id}/comments`)
+        .expect(404)
+        .then((response) => {
+          const {
+            body: { msg },
+          } = response;
+          expect(msg).toBe("id not found");
+        });
+    });
+  });
+  test("status: 400, invalid id type", () => {
+    const id = "steve";
+    return request(app)
+      .get(`/api/articles/${id}/comments`)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("invalid id/vote");
+      });
+  });
+  test("status:200, returns undefined when article does not have a comment", () => {
+    const id = 8;
+    return request(app)
+      .get(`/api/articles/${id}/comments`)
+      .expect(200)
+      .then((response) => {
+        expect(response.comments).toEqual(undefined);
+      });
+  });
 });
-
-

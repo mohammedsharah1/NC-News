@@ -16,6 +16,7 @@ const {
   handlePSQLErrors,
 } = require("./controllers/errors.controller");
 const { updateVotes } = require("./controllers/update-votes.controller");
+const { getCommentsById } = require("./controllers/get-comments-by-id.controller");
 
 app.get("/api/topics", getTopics);
 
@@ -25,6 +26,8 @@ app.get("/api/users", getUsers);
 app.get("/api/articles", getArticles);
 
 app.patch("/api/articles/:article_id", updateVotes);
+app.get("/api/articles/:article_id/comments", getCommentsById)
+
 app.use("/", handle404);
 
 app.use(handleCustomErrors);
