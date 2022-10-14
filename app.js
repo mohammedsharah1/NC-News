@@ -21,6 +21,8 @@ const {
   getCommentsById,
 } = require("./controllers/get-comments-by-id.controller");
 const { newComment } = require("./controllers/new-comment.controller");
+const { removeComment } = require("./controllers/remove-comment.controller");
+const { getApi } = require("./controllers/get-api.controller");
 app.post("/api/articles/:article_id/comments", newComment);
 
 app.get("/api/topics", getTopics);
@@ -31,7 +33,9 @@ app.get("/api/users", getUsers);
 app.get("/api/articles", getArticles);
 
 app.patch("/api/articles/:article_id", updateVotes);
+app.delete('/api/comments/:comment_id', removeComment)
 app.get("/api/articles/:article_id/comments", getCommentsById);
+app.get('/api', getApi)
 
 app.use("/", handle404);
 
