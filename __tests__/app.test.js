@@ -199,49 +199,59 @@ describe("Backend testing", () => {
           });
         });
     });
-  });
-  test("status: 200, responds with the correct topic query", () => {
+  ;
+  test('status:200, returns all the articles for selected topic and sorts by defaulted values and orders by default DESC', () => {
     return request(app)
-      .get("/api/articles?topic=cats")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(articles).toEqual([
-          {
-            title: "UNCOVERED: catspiracy to bring down democracy",
-            article_id: 5,
-            topic: "cats",
-            author: "rogersop",
-            body: "Bastet walks amongst us, and the cats are taking arms!",
-            created_at: "2020-08-03T13:14:00.000Z",
-            votes: 0,
-            comment_count: 2,
-          },
-        ]);
-      });
-  });
-  test("status: 400, responds with invalid topic query", () => {
-    return request(app)
-      .get("/api/articles?topic=spud")
-      .expect(400)
-      .then((response) => {
-        const {
-          body: { msg },
-        } = response;
-        expect(msg).toBe("invalid topic");
-      });
-  });
-  test("status: 200, accepts order by created_at", () => {
-    return request(app)
-      .get("/api/articles?topic=mitch")
-      .expect(200)
-      .then((response) => {
-        const {
-          body: { articles },
-        } = response;
+    .get(`/api/articles?topic=mitch`)
+    .expect(200)
+    .then(({body})=>{
+        const body1 = body.articles;
+        expect(body1).toBeSortedBy("created_at", { descending: true });
+        
+        body1.forEach(article => {
 
-        expect(articles).toBeSortedBy("created_at", { descending: true });
-      });
-  });
+            expect(article.topic).toBe("mitch")})
+         expect(body.articles).toBeInstanceOf(Array);
+        expect(body.articles).toHaveLength(11)
+        
+    })
+
+});
+test('status 200 , sorts by different coloumn and orders by ASC', () => {
+    return request(app)
+    .get("/api/articles?sort_by=votes&order=asc")
+    .expect(200)
+    .then(({ body }) => {
+      expect(body.articles).toBeSortedBy("votes", { ascending: true });
+    });
+});
+test('status: 404, topic is not in database', ()=>{
+    return request(app)
+    .get(`/api/articles?topic=random`)
+    .expect(404)
+    .then(({body})=>{
+        expect(body.msg).toEqual("invalid topic")
+    })
+    
+})
+test('status:400 , bad request, unknown order by', () => {
+    return request(app)
+    .get(`/api/articles?order=random`)
+    .expect(400)
+    .then(({body})=>{
+       expect(body.msg).toBe("invalid input")
+    })
+    
+});
+test('status:400 , bad request unknown sort by', () => {
+    return request(app)
+    .get(`/api/articles?sort_by=random`)
+    .expect(400)
+    .then(({body})=>{
+       expect(body.msg).toBe("invalid sort_by input")
+    })
+    
+})});
   describe("GET /api/articles/:article_id/comments", () => {
     test("status: 200, responds with an array of comments for the given article_id", () => {
       return request(app)
