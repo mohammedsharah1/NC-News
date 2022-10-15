@@ -1,6 +1,5 @@
 const express = require("express");
-const app = express();
-app.use(express.json());
+
 const { getTopics } = require("./controllers/get_topics.controller");
 const {
   getArticlesById,
@@ -23,6 +22,11 @@ const {
 const { newComment } = require("./controllers/new-comment.controller");
 const { removeComment } = require("./controllers/remove-comment.controller");
 const { getApi } = require("./controllers/get-api.controller");
+
+const app = express();
+app.use(express.json());
+
+
 app.post("/api/articles/:article_id/comments", newComment);
 
 app.get("/api/topics", getTopics);
