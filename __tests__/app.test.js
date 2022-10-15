@@ -199,59 +199,54 @@ describe("Backend testing", () => {
           });
         });
     });
-  ;
-  test('status:200, returns all the articles for selected topic and sorts by defaulted values and orders by default DESC', () => {
-    return request(app)
-    .get(`/api/articles?topic=mitch`)
-    .expect(200)
-    .then(({body})=>{
-        const body1 = body.articles;
-        expect(body1).toBeSortedBy("created_at", { descending: true });
-        
-        body1.forEach(article => {
+    test("status:200, returns all the articles for selected topic and sorts by defaulted values and orders by default DESC", () => {
+      return request(app)
+        .get(`/api/articles?topic=mitch`)
+        .expect(200)
+        .then(({ body }) => {
+          const body1 = body.articles;
+          expect(body1).toBeSortedBy("created_at", { descending: true });
 
-            expect(article.topic).toBe("mitch")})
-         expect(body.articles).toBeInstanceOf(Array);
-        expect(body.articles).toHaveLength(11)
-        
-    })
-
-});
-test('status 200 , sorts by different coloumn and orders by ASC', () => {
-    return request(app)
-    .get("/api/articles?sort_by=votes&order=asc")
-    .expect(200)
-    .then(({ body }) => {
-      expect(body.articles).toBeSortedBy("votes", { ascending: true });
+          body1.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+          expect(body.articles).toBeInstanceOf(Array);
+          expect(body.articles).toHaveLength(11);
+        });
     });
-});
-test('status: 404, topic is not in database', ()=>{
-    return request(app)
-    .get(`/api/articles?topic=random`)
-    .expect(404)
-    .then(({body})=>{
-        expect(body.msg).toEqual("invalid topic")
-    })
-    
-})
-test('status:400 , bad request, unknown order by', () => {
-    return request(app)
-    .get(`/api/articles?order=random`)
-    .expect(400)
-    .then(({body})=>{
-       expect(body.msg).toBe("invalid input")
-    })
-    
-});
-test('status:400 , bad request unknown sort by', () => {
-    return request(app)
-    .get(`/api/articles?sort_by=random`)
-    .expect(400)
-    .then(({body})=>{
-       expect(body.msg).toBe("invalid sort_by input")
-    })
-    
-})});
+    test("status 200 , sorts by different coloumn and orders by ASC", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("votes", { ascending: true });
+        });
+    });
+    test("status: 404, topic is not in database", () => {
+      return request(app)
+        .get(`/api/articles?topic=random`)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("invalid topic");
+        });
+    });
+    test("status:400 , bad request, unknown order by", () => {
+      return request(app)
+        .get(`/api/articles?order=random`)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("invalid input");
+        });
+    });
+    test("status:400 , bad request unknown sort by", () => {
+      return request(app)
+        .get(`/api/articles?sort_by=random`)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("invalid sort_by input");
+        });
+    });
+  });
   describe("GET /api/articles/:article_id/comments", () => {
     test("status: 200, responds with an array of comments for the given article_id", () => {
       return request(app)
@@ -317,8 +312,6 @@ test('status:400 , bad request unknown sort by', () => {
         .expect(201)
         .send(newComment)
         .then(({ body }) => {
-
-          
           expect(body.comments).toEqual({
             comment_id: 19,
             author: "rogersop",
@@ -398,5 +391,36 @@ test('status:400 , bad request unknown sort by', () => {
         });
       });
   });
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("status:204 , deletes comment", () => {
+      const id = 1;
+      return request(app).delete(`/api/comments/${id}`).expect(204);
+    });
+    test("status:404, id does not exist so cannot be deleted ", () => {
+      const id = 999;
+      return request(app)
+        .delete(`/api/comments/${id}`)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("comment id not found");
+        });
+    });
+    test("status: 400, invalid wrong data type", () => {
+      const id = "some id";
+      return request(app)
+        .delete(`/api/comments/${id}`)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("invalid id/vote");
+        });
+    });
+  });
+  describe('test api', () => {
+    test('returns apis', () => {
+       return request(app)
+       .get("/api")
+       .expect(200) 
+    });
 });
 
+});
